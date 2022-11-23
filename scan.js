@@ -5,7 +5,7 @@
    // 数据流对象
    var imageData = null;
    //视频展示对象
-   var v = document.getElementById("v");
+   var v = document.getElementById("qr-video");
    var n = navigator;
    // 画布元素
    var gCanvas = document.getElementById("qr-canvas");
@@ -34,7 +34,7 @@
    }
    //getUserMedia调用成功
    function success(stream) {
-       v = document.getElementById("v");
+       v = document.getElementById("qr-video");
        try {
            v.srcObject = stream;
        } catch {
@@ -43,7 +43,7 @@
            v.src = compatibleURL.createObjectURL(stream);
        }
        gUM = true;
-       setTimeout(captureToCanvas, 500);
+       scan_timmer=setTimeout(captureToCanvas, 700);
    }
    //getUserMedia调用失败
    function error(error) {
@@ -56,20 +56,21 @@
        if (gUM) {
            gCtx.drawImage(v, 0, 0);
 
-           setTimeout(captureToCanvas, 500);
+           scan_timmer=setTimeout(captureToCanvas, 700);
 
-           imageData = gCtx.getImageData(0, 0, 600, 800);
+           imageData = gCtx.getImageData(0, 0, 800, 800);
 
            const code = jsQR(imageData.data, imageData.width, imageData.height, {
                inversionAttempts: "dontInvert",
            });
-
-           alert('code.data:' + code.data);
-
-           if (code) {
-               window.location.href = code.data;
-           } else {
-               alert("识别错误")
+           if(code!=null){
+               if(/^http+(?:s?)+:\/\//.test(code.data)){
+                    clearTimeout(scan_timmer); 
+                    window.location.href=code.data;
+               }else{
+                   alert(code.data);
+               }
            }
        }
+
    }
